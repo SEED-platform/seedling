@@ -22,6 +22,21 @@
   ],
   "main": "main.js",
   "private": true,
+  "build": {
+    "asar": false,
+    "files": [
+      {
+        "from": "./zipped_binaries/postgresql-12.4-1-osx-binaries.zip",
+        "to": "./zipped_dir/postgresql-12.4-1-osx-binaries.zip",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "./unzipped_binaries",
+        "to": "./unzipped_dir",
+        "filter": ["**/*"]
+      }
+    ]
+  },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "ng": "ng",
