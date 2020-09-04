@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {ElectronService} from "../core/services";
 
 @Component({
   selector: 'app-home',
@@ -7,8 +7,11 @@ import { Router } from '@angular/router';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+  directoryContents: string[];
 
-  constructor(private router: Router) { }
+  constructor(private electronService: ElectronService) {
+    this.directoryContents = electronService.fs.readdirSync('./');
+  }
 
   ngOnInit(): void { }
 

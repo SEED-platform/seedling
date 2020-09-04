@@ -22,21 +22,6 @@
   ],
   "main": "main.js",
   "private": true,
-  "build": {
-    "asar": false,
-    "files": [
-      {
-        "from": "./zipped_binaries/postgresql-12.4-1-osx-binaries.zip",
-        "to": "./zipped_dir/postgresql-12.4-1-osx-binaries.zip",
-        "filter": ["**/*"]
-      },
-      {
-        "from": "./unzipped_binaries",
-        "to": "./unzipped_dir",
-        "filter": ["**/*"]
-      }
-    ]
-  },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "ng": "ng",
@@ -44,7 +29,7 @@
     "build": "npm run electron:serve-tsc && ng build --base-href ./",
     "build:dev": "npm run build -- -c dev",
     "build:prod": "npm run build -- -c production",
-    "ng:serve": "ng serve -c web -o",
+    "ng:serve": "ng serve -c dev",
     "electron:serve-tsc": "tsc -p tsconfig.serve.json",
     "electron:serve": "wait-on tcp:4200 && npm run electron:serve-tsc && npx electron . --serve",
     "electron:local": "npm run build:prod && npx electron .",
