@@ -42,4 +42,45 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  initDb() {
+    console.log('Initializing DB...');
+    const child = this.electronService.childProcess.spawn('initdb', ['-U', process.env.PGUSER], {cwd: this._postgresDir})
+    // child.stdout.on('data', (data: string) => {
+    //   console.log('initDb data:', data.toString());
+    // });
+    // child.stderr.on('data', (data: string) => {
+    //   console.error(`initDb stderr: ${data}`);
+    // });
+    child.on('close', (code) => {
+      console.log(`initDb exited with code ${code}`);
+    });
+  }
+
+  startDb() {
+    console.log('Starting DB...');
+    const child = this.electronService.childProcess.spawn('pg_ctl', ['start'], {cwd: this._postgresDir})
+    child.stdout.on('data', (data: string) => {
+      console.log('startDb data:', data.toString());
+    });
+    child.stderr.on('data', (data: string) => {
+      console.error(`startDb stderr: ${data}`);
+    });
+    child.on('close', (code) => {
+      console.log(`startDb exited with code ${code}`);
+    });
+  }
+
+  stopDb() {
+    console.log('Stopping DB...');
+    const child = this.electronService.childProcess.spawn('pg_ctl', ['stop'], {cwd: this._postgresDir})
+    child.stdout.on('data', (data: string) => {
+      console.log('stopDb data:', data.toString());
+    });
+    child.stderr.on('data', (data: string) => {
+      console.error(`stopDb stderr: ${data}`);
+    });
+    child.on('close', (code) => {
+      console.log(`stopDb exited with code ${code}`);
+    });
+  }
 }
