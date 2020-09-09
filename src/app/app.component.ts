@@ -21,6 +21,7 @@ export class AppComponent {
       console.log('Run in electron');
       console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
       console.log('NodeJS childProcess', this.electronService.childProcess);
+      console.log('NodeJS path', this.electronService.path);
     } else {
       console.log('Run in browser');
     }
