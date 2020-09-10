@@ -21,8 +21,8 @@
   ],
   "extraResources": [
     {
-      "from": "./resources/pg12/",
-      "to": "pg12",
+      "from": "../resources/",
+      "to": "resources",
       "filter": [
         "**/*"
       ]

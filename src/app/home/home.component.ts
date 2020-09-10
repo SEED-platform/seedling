@@ -18,7 +18,10 @@ export class HomeComponent implements OnInit {
     private ngZone: NgZone
   ) {
     this.env = AppConfig.environment;
-    this._postgresDir = electronService.path.join(electronService.path.dirname('./'), 'resources', 'pg12', 'bin');
+    this._postgresDir = electronService.path.resolve(
+      electronService.remote.app.getAppPath(),
+      '../resources/pg12/bin'
+    );
   }
 
   ngOnInit(): void {
