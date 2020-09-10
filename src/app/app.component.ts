@@ -25,11 +25,11 @@ export class AppComponent {
       if (process.platform === 'win32') {
         basePath = electronService.path.resolve(process.env.ProgramData);
       } else if (process.platform === 'darwin') {
-        basePath = electronService.path.resolve(`~/Library/Application Support/`);
+        basePath = electronService.path.resolve(`${process.env.HOME}/Library/Application Support/`);
       }
-      process.env.PGDATA = electronService.path.join(basePath, 'SEED-Platform', 'pg12');
+      process.env.PGDATA = electronService.path.join(basePath, 'SEED-Platform', AppConfig.environment, 'pg12');
 
-      console.log(process.env);
+      console.log('process.env', process.env);
       console.log('Run in electron');
       console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
       console.log('NodeJS childProcess', this.electronService.childProcess);
