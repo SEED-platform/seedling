@@ -33,7 +33,12 @@ export class HomeComponent implements OnInit {
   }
 
   private _getPostgresVersion() {
-    const child = this.electronService.childProcess.spawn('psql', ['--version'], {cwd: this._postgresDir})
+    const child = this.electronService.childProcess.spawn(
+      this.electronService.path.resolve(this._postgresDir, 'psql'),
+      ['--version'],
+      {cwd: this._postgresDir}
+    )
+
     child.stdout.on('data', (data: string) => this.ngZone.run(() => {
       this.postgresVersion = data;
     }));
@@ -47,13 +52,18 @@ export class HomeComponent implements OnInit {
 
   initDb() {
     console.log('Initializing DB...');
-    const child = this.electronService.childProcess.spawn('initdb', ['-U', process.env.PGUSER], {cwd: this._postgresDir})
-    // child.stdout.on('data', (data: string) => {
-    //   console.log('initDb data:', data.toString());
-    // });
-    // child.stderr.on('data', (data: string) => {
-    //   console.error(`initDb stderr: ${data}`);
-    // });
+    const child = this.electronService.childProcess.spawn(
+      this.electronService.path.resolve(this._postgresDir, 'initdb'),
+      ['-U', process.env.PGUSER, '-A', 'trust'],
+      {cwd: this._postgresDir}
+    )
+
+    child.stdout.on('data', (data: string) => {
+      console.log('initDb data:', data.toString());
+    });
+    child.stderr.on('data', (data: string) => {
+      console.error(`initDb stderr: ${data}`);
+    });
     child.on('close', (code) => {
       console.log(`initDb exited with code ${code}`);
     });
@@ -61,7 +71,12 @@ export class HomeComponent implements OnInit {
 
   startDb() {
     console.log('Starting DB...');
-    const child = this.electronService.childProcess.spawn('pg_ctl', ['start'], {cwd: this._postgresDir})
+    const child = this.electronService.childProcess.spawn(
+      this.electronService.path.resolve(this._postgresDir, 'pg_ctl'),
+      ['start'],
+      {cwd: this._postgresDir}
+    )
+
     child.stdout.on('data', (data: string) => {
       console.log('startDb data:', data.toString());
     });
@@ -75,7 +90,12 @@ export class HomeComponent implements OnInit {
 
   stopDb() {
     console.log('Stopping DB...');
-    const child = this.electronService.childProcess.spawn('pg_ctl', ['stop'], {cwd: this._postgresDir})
+    const child = this.electronService.childProcess.spawn(
+      this.electronService.path.resolve(this._postgresDir, 'pg_ctl'),
+      ['stop'],
+      {cwd: this._postgresDir}
+    )
+
     child.stdout.on('data', (data: string) => {
       console.log('stopDb data:', data.toString());
     });
