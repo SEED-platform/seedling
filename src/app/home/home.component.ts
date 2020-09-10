@@ -51,10 +51,17 @@ export class HomeComponent implements OnInit {
   }
 
   initDb() {
+    let initOptions = [];
+    if (process.platform === 'win32') {
+      initOptions = ['-U', process.env.PGUSER]
+    } else if (process.platform === 'darwin') {
+      initOptions = ['-U', process.env.PGUSER, '-A', 'trust']
+    }
+
     console.log('Initializing DB...');
     const child = this.electronService.childProcess.spawn(
       this.electronService.path.resolve(this._postgresDir, 'initdb'),
-      ['-U', process.env.PGUSER, '-A', 'trust'],
+      initOptions,
       {cwd: this._postgresDir}
     )
 
