@@ -15,7 +15,7 @@ export class PostgresService {
   ) {
     this._postgresDir = electronService.path.resolve(
       electronService.remote.app.getAppPath(),
-      '../resources/pg12/bin'
+      AppConfig.environment === 'PROD' ? '../pg12/bin' : './resources/pg12/bin'
     );
     console.log(this._postgresDir);
   }
