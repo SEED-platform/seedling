@@ -1,5 +1,5 @@
 import {Component, NgZone, OnInit} from '@angular/core';
-import {ElectronService} from "../core/services";
+import {PostgresService} from "../core/services";
 import {AppConfig} from "../../environments/environment";
 
 @Component({
@@ -11,106 +11,36 @@ export class HomeComponent implements OnInit {
   directoryContents: string[];
   postgresVersion: string;
   readonly env: string;
-  private readonly _postgresDir: string;
 
   constructor(
-    private electronService: ElectronService,
+    private postgresService: PostgresService,
     private ngZone: NgZone
   ) {
     this.env = AppConfig.environment;
-    this._postgresDir = electronService.path.resolve(
-      electronService.remote.app.getAppPath(),
-      '../resources/pg12/bin'
-    );
   }
 
   ngOnInit(): void {
-    this.electronService.fs.promises.readdir(this._postgresDir).then(result => {
-      this.directoryContents = result;
-    });
-
-    this._getPostgresVersion();
+    this._getPostgresVersion()
   }
 
   private _getPostgresVersion() {
-    const child = this.electronService.childProcess.spawn(
-      this.electronService.path.resolve(this._postgresDir, 'psql'),
-      ['--version'],
-      {cwd: this._postgresDir}
+    this.postgresService.getPostgresVersion().stdout.on(
+      'data',
+      (data: string) => this.ngZone.run(() => {
+        this.postgresVersion = data.toString();
+      })
     )
-
-    child.stdout.on('data', (data: string) => this.ngZone.run(() => {
-      this.postgresVersion = data;
-    }));
-    child.stderr.on('data', (data: string) => {
-      console.error(`stderr: ${data}`);
-    });
-    child.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
-    });
   }
 
   initDb() {
-    let initOptions = [];
-    if (process.platform === 'win32') {
-      initOptions = ['-U', process.env.PGUSER]
-    } else if (process.platform === 'darwin') {
-      initOptions = ['-U', process.env.PGUSER, '-A', 'trust']
-    }
-
-    console.log('Initializing DB...');
-    const child = this.electronService.childProcess.spawn(
-      this.electronService.path.resolve(this._postgresDir, 'initdb'),
-      initOptions,
-      {cwd: this._postgresDir}
-    )
-
-    child.stdout.on('data', (data: string) => {
-      console.log('initDb data:', data.toString());
-    });
-    child.stderr.on('data', (data: string) => {
-      console.error(`initDb stderr: ${data}`);
-    });
-    child.on('close', (code) => {
-      console.log(`initDb exited with code ${code}`);
-    });
+    this.postgresService.initDb();
   }
 
   startDb() {
-    console.log('Starting DB...');
-    const child = this.electronService.childProcess.spawn(
-      this.electronService.path.resolve(this._postgresDir, 'pg_ctl'),
-      ['start'],
-      {cwd: this._postgresDir}
-    )
-
-    child.stdout.on('data', (data: string) => {
-      console.log('startDb data:', data.toString());
-    });
-    child.stderr.on('data', (data: string) => {
-      console.error(`startDb stderr: ${data}`);
-    });
-    child.on('close', (code) => {
-      console.log(`startDb exited with code ${code}`);
-    });
+    this.postgresService.startDb();
   }
 
   stopDb() {
-    console.log('Stopping DB...');
-    const child = this.electronService.childProcess.spawn(
-      this.electronService.path.resolve(this._postgresDir, 'pg_ctl'),
-      ['stop'],
-      {cwd: this._postgresDir}
-    )
-
-    child.stdout.on('data', (data: string) => {
-      console.log('stopDb data:', data.toString());
-    });
-    child.stderr.on('data', (data: string) => {
-      console.error(`stopDb stderr: ${data}`);
-    });
-    child.on('close', (code) => {
-      console.log(`stopDb exited with code ${code}`);
-    });
+    this.postgresService.stopDb();
   }
 }
