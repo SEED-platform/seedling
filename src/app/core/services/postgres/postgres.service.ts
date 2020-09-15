@@ -1,7 +1,6 @@
-import {NgZone} from '@angular/core';
-import {Injectable} from '@angular/core';
-import {ElectronService} from "../electron/electron.service";
-import {AppConfig} from "../../../../environments/environment";
+import { Injectable } from '@angular/core';
+import { ElectronService } from '../electron/electron.service';
+import { AppConfig } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +9,7 @@ export class PostgresService {
   private readonly _postgresDir: string;
 
   constructor(
-    private electronService: ElectronService,
-    private ngZone: NgZone
+    private electronService: ElectronService
   ) {
     this._postgresDir = electronService.path.resolve(
       electronService.remote.app.getAppPath(),
@@ -25,15 +23,15 @@ export class PostgresService {
       this.electronService.path.resolve(this._postgresDir, 'psql'),
       ['--version'],
       {cwd: this._postgresDir}
-    )
+    );
   }
 
-  initDb() {
-    let initOptions = [];
+  initDb(): void {
+    let initOptions: string[] = [];
     if (process.platform === 'win32') {
-      initOptions = ['-U', process.env.PGUSER]
+      initOptions = ['-U', process.env.PGUSER];
     } else if (process.platform === 'darwin') {
-      initOptions = ['-U', process.env.PGUSER, '-A', 'trust']
+      initOptions = ['-U', process.env.PGUSER, '-A', 'trust'];
     }
 
     console.log('Initializing DB...');
@@ -41,7 +39,7 @@ export class PostgresService {
       this.electronService.path.resolve(this._postgresDir, 'initdb'),
       initOptions,
       {cwd: this._postgresDir}
-    )
+    );
 
     child.stdout.on('data', (data: string) => {
       console.log('initDb data:', data.toString());
@@ -57,13 +55,13 @@ export class PostgresService {
     });
   }
 
-  startDb() {
+  startDb(): void {
     console.log('Starting DB...');
     const child = this.electronService.childProcess.spawn(
       this.electronService.path.resolve(this._postgresDir, 'pg_ctl'),
       ['start'],
       {cwd: this._postgresDir}
-    )
+    );
 
     child.stdout.on('data', (data: string) => {
       console.log('startDb data:', data.toString());
@@ -79,13 +77,13 @@ export class PostgresService {
     });
   }
 
-  stopDb() {
+  stopDb(): void {
     console.log('Stopping DB...');
     const child = this.electronService.childProcess.spawn(
       this.electronService.path.resolve(this._postgresDir, 'pg_ctl'),
       ['stop'],
       {cwd: this._postgresDir}
-    )
+    );
 
     child.stdout.on('data', (data: string) => {
       console.log('stopDb data:', data.toString());
