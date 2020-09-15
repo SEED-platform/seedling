@@ -13,7 +13,7 @@ export class HomeComponent implements OnInit {
   readonly env: string;
 
   constructor(
-    private postgresService: PostgresService,
+    public postgresService: PostgresService,
     private ngZone: NgZone
   ) {
     this.env = AppConfig.environment;
@@ -30,17 +30,5 @@ export class HomeComponent implements OnInit {
         this.postgresVersion = data.toString();
       })
     )
-  }
-
-  initDb() {
-    this.postgresService.initDb();
-  }
-
-  startDb() {
-    this.postgresService.startDb();
-  }
-
-  stopDb() {
-    this.postgresService.stopDb();
   }
 }

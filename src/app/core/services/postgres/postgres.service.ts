@@ -20,7 +20,6 @@ export class PostgresService {
     console.log(this._postgresDir);
   }
 
-  // returns a ChildProcess instance... not sure how to specify that as a type
   getPostgresVersion(): any {
     return this.electronService.childProcess.spawn(
       this.electronService.path.resolve(this._postgresDir, 'psql'),
