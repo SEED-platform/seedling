@@ -6,6 +6,10 @@ let win: BrowserWindow = null;
 const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
 
+// allow https://localhost:4200
+app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
+app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
+
 function createWindow(): BrowserWindow {
 
   const electronScreen = screen;
@@ -18,9 +22,10 @@ function createWindow(): BrowserWindow {
     width: size.width,
     height: size.height,
     webPreferences: {
+      allowRunningInsecureContent: false,
+      enableRemoteModule: true,
       nodeIntegration: true,
-      allowRunningInsecureContent: (serve) ? true : false,
-      enableRemoteModule: true // true if you want to use remote module in renderer context (ie. Angular)
+      worldSafeExecuteJavaScript: true
     }
   });
 
@@ -31,7 +36,7 @@ function createWindow(): BrowserWindow {
     require('electron-reload')(__dirname, {
       electron: require(`${__dirname}/node_modules/electron`)
     });
-    win.loadURL('http://localhost:4200');
+    win.loadURL('https://localhost:4200');
 
   } else {
     // redirect to index.html on Window->Reload in production

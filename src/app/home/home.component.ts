@@ -1,6 +1,6 @@
-import { Component, NgZone, OnInit } from '@angular/core';
-import { PostgresService } from '../core/services/postgres/postgres.service';
+import { Component, OnInit } from '@angular/core';
 import { AppConfig } from '../../environments/environment';
+import { PostgresService } from '../core/services/postgres/postgres.service';
 
 @Component({
   selector: 'app-home',
@@ -13,8 +13,7 @@ export class HomeComponent implements OnInit {
   readonly env: string;
 
   constructor(
-    public postgresService: PostgresService,
-    private ngZone: NgZone
+    public postgresService: PostgresService
   ) {
     this.env = AppConfig.environment;
   }
@@ -24,11 +23,6 @@ export class HomeComponent implements OnInit {
   }
 
   private _getPostgresVersion() {
-    this.postgresService.getPostgresVersion().stdout.on(
-      'data',
-      (data: string) => this.ngZone.run(() => {
-        this.postgresVersion = data.toString();
-      })
-    );
+    this.postgresService.getPostgresVersion().then(version => this.postgresVersion = version);
   }
 }

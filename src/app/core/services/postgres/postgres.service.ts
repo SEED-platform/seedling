@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
-import { ElectronService } from '../electron/electron.service';
+import { BehaviorSubject } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { AppConfig } from '../../../../environments/environment';
+import { ElectronService } from '../electron/electron.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PostgresService {
   private readonly _postgresDir: string;
+  private _runningSubject = new BehaviorSubject(false);
+  readonly running$ = this._runningSubject.asObservable().pipe(distinctUntilChanged());
 
   constructor(
     private electronService: ElectronService
@@ -18,12 +22,21 @@ export class PostgresService {
     console.log(this._postgresDir);
   }
 
-  getPostgresVersion(): any {
-    return this.electronService.childProcess.spawn(
-      this.electronService.path.resolve(this._postgresDir, 'psql'),
-      ['--version'],
-      {cwd: this._postgresDir}
-    );
+  getPostgresVersion(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      let stdout = '';
+      let stderr = '';
+      const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['--version'], {cwd: this._postgresDir});
+      child.stdout.on('data', (data: string) => stdout += `${data}`);
+      child.stderr.on('data', (data: string) => stderr += `${data}`);
+      child.on('close', code => {
+        if (code === 0) {
+          resolve(stdout.trim());
+        } else {
+          reject(stderr.trim());
+        }
+      });
+    });
   }
 
   initDb(): void {
@@ -36,7 +49,7 @@ export class PostgresService {
 
     console.log('Initializing DB...');
     const child = this.electronService.childProcess.spawn(
-      this.electronService.path.resolve(this._postgresDir, 'initdb'),
+      this._resolve('initdb'),
       initOptions,
       {cwd: this._postgresDir}
     );
@@ -58,7 +71,7 @@ export class PostgresService {
   startDb(): void {
     console.log('Starting DB...');
     const child = this.electronService.childProcess.spawn(
-      this.electronService.path.resolve(this._postgresDir, 'pg_ctl'),
+      this._resolve('pg_ctl'),
       ['start'],
       {cwd: this._postgresDir}
     );
@@ -80,7 +93,7 @@ export class PostgresService {
   stopDb(): void {
     console.log('Stopping DB...');
     const child = this.electronService.childProcess.spawn(
-      this.electronService.path.resolve(this._postgresDir, 'pg_ctl'),
+      this._resolve('pg_ctl'),
       ['stop'],
       {cwd: this._postgresDir}
     );
@@ -99,5 +112,34 @@ export class PostgresService {
     });
   }
 
+  status(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['status'], {cwd: this._postgresDir});
+      child.stdout.on('data', (data: string) => {
+        if (`${data}`.startsWith('pg_ctl: server is running')) {
+          console.log('resolving');
+          resolve();
+          console.log('killing', child.pid);
+          this._kill(child.pid);
+        }
+      });
+      child.stderr.on('data', (data: string) => {
+        console.log(`GOT STDERR: ${data}`);
+      });
+      child.on('close', code => {
+        console.log('CLOSE', code);
+        if (code !== 0) {
+          reject();
+        }
+      });
+    });
+  }
 
+  private _resolve(executable: string): string {
+    return this.electronService.path.resolve(this._postgresDir, executable);
+  }
+
+  private _kill(pid: number) {
+    this.electronService.childProcess.spawn('taskkill', ['/pid', String(pid), '/f', '/t']);
+  }
 }

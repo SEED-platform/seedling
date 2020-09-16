@@ -2,8 +2,6 @@
   <h1 class="title">Environment: {{ env }}</h1>
   <h1 class="title">PSQL Version: {{ postgresVersion }}</h1>
 
-  <!--<a routerLink="/detail">{{ 'PAGES.HOME.GO_TO_DETAIL' | translate }}</a>-->
-
   <!--<div class="directory-contents">
     <h2>Postgres Bin Contents:</h2>
     <ul>
@@ -14,4 +12,5 @@
   <button (click)="postgresService.initDb()">Init DB</button>
   <button (click)="postgresService.startDb()">Start DB</button>
   <button (click)="postgresService.stopDb()">Stop DB</button>
+  <button (click)="postgresService.status()">Status</button>
 </div>
