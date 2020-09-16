@@ -1,3 +1,4 @@
+const childProcess = require('child_process');
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
@@ -24,7 +25,7 @@ const zipPath = path.resolve(resourcesDir, 'pg12.zip');
     }
 
     await download(url);
-    await extract(zipPath);
+    await extract();
     fs.unlinkSync(zipPath);
   }
 })();
@@ -48,25 +49,40 @@ async function download(url) {
   });
 }
 
-async function extract(zipPath) {
+async function extract() {
   return new Promise((resolve, reject) => {
     console.log('Extracting pg12...');
-    const zip = new StreamZip({
-      file: zipPath,
-      storeEntries: true
-    });
-    zip.on('error', err => {
-      reject(`Zip error: ${err}`);
-    });
-    zip.on('ready', () => {
-      fs.mkdirSync(pg12Dir);
-      zip.extract(null, pg12Dir, err => {
-        if (err) {
-          return reject(`Extract error ${err}`);
-        }
-        zip.close();
-        resolve();
+    if (process.platform === 'win32') {
+      const zip = new StreamZip({
+        file: zipPath,
+        storeEntries: true
       });
-    });
+      zip.on('error', err => {
+        reject(`Zip error: ${err}`);
+      });
+      zip.on('ready', () => {
+        fs.mkdirSync(pg12Dir);
+        zip.extract(null, pg12Dir, err => {
+          if (err) {
+            reject(`Extract error ${err}`);
+          }
+          zip.close();
+          resolve();
+        });
+      });
+    } else if (process.platform === 'darwin') {
+      fs.mkdirSync(pg12Dir);
+      const child = childProcess.spawnSync('tar', ['-xf', zipPath, '-C', pg12Dir])
+
+      const err = child.stderr.toString();
+      if (err) {
+        console.error(`Extract error ${err}`);
+        reject(`Extract error ${err}`);
+      } else {
+        resolve();
+      }
+    } else {
+      reject();
+    }
   });
 }
