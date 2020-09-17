@@ -23,6 +23,8 @@ export class HomeComponent implements OnInit {
   }
 
   private _getPostgresVersion() {
-    this.postgresService.getPostgresVersion().then(version => this.postgresVersion = version);
+    this.postgresService.getPostgresVersion()
+      .then(version => this.postgresVersion = version)
+      .catch(() => this.postgresVersion = "Postgres not installed correctly.");
   }
 }
