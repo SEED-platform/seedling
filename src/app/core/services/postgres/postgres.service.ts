@@ -35,6 +35,10 @@ export class PostgresService {
       const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['--version'], {cwd: this._postgresDir});
       child.stdout.on('data', (data: string) => stdout += `${data}`);
       child.stderr.on('data', (data: string) => stderr += `${data}`);
+      child.on('error', error => {
+        console.error(error);
+        reject();
+      });
       child.on('close', code => {
         if (code === 0) {
           resolve(stdout.trim());
