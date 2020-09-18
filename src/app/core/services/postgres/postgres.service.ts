@@ -142,7 +142,7 @@ export class PostgresService {
         data = data.toString().trim();
         console.log(`status stderr: '${data}'`);
       });
-      child.on('close', code => {
+      child.on('close', code => this.ngZone.run(() => {
         console.log(`status exited with code ${code}`);
         if (code === 3) {
           // Initialized but not running
@@ -154,7 +154,7 @@ export class PostgresService {
           this._initializedSubject.next(false);
           this._runningSubject.next(false);
         }
-      });
+      }));
     });
   }
 
@@ -171,5 +171,6 @@ export class PostgresService {
 
   private _connectSequelize(connect: boolean) {
     console.log('connecting!', connect);
+    // new Sequelize('postgres://seeduser:supersecretpassword@127.0.0.1:5442/seed')
   }
 }
