@@ -29,13 +29,11 @@ export class AppComponent {
       }
       process.env.PGDATA = electronService.path.join(basePath, 'SEED-Platform', AppConfig.environment, 'pg12');
 
-      console.log('process.env', process.env);
-      console.log('Run in electron');
-      console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
-      console.log('NodeJS childProcess', this.electronService.childProcess);
-      console.log('NodeJS path', this.electronService.path);
+      // console.log('process.env', process.env);
+      // console.log('Run in electron');
+      // console.log('Electron ipcRenderer', this.electronService.ipcRenderer);
     } else {
-      console.log('Run in browser');
+      // console.log('Run in browser');
     }
   }
 }
