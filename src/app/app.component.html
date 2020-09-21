@@ -1,1 +1,9 @@
-<router-outlet></router-outlet>
+<div fxLayout="row" fxFlexFill>
+  <app-left-nav></app-left-nav>
+  <div fxFlex fxLayout="column">
+    <app-header></app-header>
+    <overlay-scrollbars [options]="scrollOptions" fxFlex id="body-container">
+      <router-outlet></router-outlet>
+    </overlay-scrollbars>
+  </div>
+</div>
