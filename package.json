@@ -1,25 +1,11 @@
 {
-  "name": "angular-electron",
-  "version": "8.0.4",
-  "description": "Angular 10 with Electron (Typescript + SASS + Hot Reload)",
-  "homepage": "https://github.com/maximegris/angular-electron",
+  "name": "seed-cbl",
+  "version": "1.0.0",
+  "description": "SEED Covered Buildings List",
+  "homepage": "https://seed-platform.org/",
   "author": {
-    "name": "Maxime GRIS",
-    "email": "maxime.gris@gmail.com"
+    "name": "NREL"
   },
-  "keywords": [
-    "angular",
-    "angular 10",
-    "electron",
-    "nodejs",
-    "typescript",
-    "spectron",
-    "eslint",
-    "sass",
-    "windows",
-    "mac",
-    "linux"
-  ],
   "main": "main.js",
   "private": true,
   "scripts": {
@@ -103,6 +89,7 @@
     "zone.js": "0.11.1"
   },
   "dependencies": {
+    "electron-window-state": "5.0.3",
     "pg": "~8.3.3",
     "sequelize": "~6.3.5"
   },

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
+import * as windowStateKeeper from 'electron-window-state';
 
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
@@ -15,12 +16,17 @@ function createWindow(): BrowserWindow {
   const electronScreen = screen;
   const size = electronScreen.getPrimaryDisplay().workAreaSize;
 
-  // Create the browser window.
+  const mainWindowState = windowStateKeeper({
+    defaultWidth: size.width,
+    defaultHeight: size.height
+  });
+
+  // Create the window using the state information
   win = new BrowserWindow({
-    x: 0,
-    y: 0,
-    width: size.width,
-    height: size.height,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
     webPreferences: {
       allowRunningInsecureContent: false,
       enableRemoteModule: true,
@@ -29,7 +35,12 @@ function createWindow(): BrowserWindow {
     }
   });
 
+  mainWindowState.manage(win);
+
   if (serve) {
+    if (process.platform === 'win32') {
+      win.setIcon('src/assets/icons/icon.ico');
+    }
 
     win.webContents.openDevTools();
 
