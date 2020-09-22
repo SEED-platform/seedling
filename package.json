@@ -91,6 +91,7 @@
   "dependencies": {
     "electron-window-state": "5.0.3",
     "pg": "~8.3.3",
+    "pg-hstore": "~2.3.3",
     "sequelize": "~6.3.5"
   },
   "engines": {

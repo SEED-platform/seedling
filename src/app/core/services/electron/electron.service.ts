@@ -7,7 +7,8 @@ import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as pg from 'pg';
-import { Sequelize } from 'Sequelize';
+import * as pgHstore from 'pg-hstore';
+import * as Sequelize from 'sequelize';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,9 @@ export class ElectronService {
   fs: typeof fs;
   path: typeof path;
   pg: typeof pg;
-  Sequelize: typeof Sequelize;
+  pgHstore: typeof pgHstore;
+  DataTypes: typeof Sequelize.DataTypes;
+  Sequelize: typeof Sequelize.Sequelize;
 
   get isElectron(): boolean {
     return !!(window && window.process && window.process.type);
@@ -39,6 +42,8 @@ export class ElectronService {
       this.fs = window.require('fs');
       this.path = window.require('path');
       this.pg = this.remote.require('pg');
+      this.pgHstore = this.remote.require('pg-hstore');
+      this.DataTypes = this.remote.require('sequelize').DataTypes;
       this.Sequelize = this.remote.require('sequelize').Sequelize;
     }
   }

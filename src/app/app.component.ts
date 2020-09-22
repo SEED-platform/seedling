@@ -24,6 +24,7 @@ export class AppComponent {
     if (electronService.isElectron) {
       process.env.PGDATABASE = 'seed';
       process.env.PGUSER = 'seeduser';
+      process.env.PGPASSWORD = 'password';
       process.env.PGPORT = '5442';
 
       let basePath;
