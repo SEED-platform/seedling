@@ -45,6 +45,11 @@ export class ElectronService {
       this.pgHstore = this.remote.require('pg-hstore');
       this.DataTypes = this.remote.require('sequelize').DataTypes;
       this.Sequelize = this.remote.require('sequelize').Sequelize;
+
+      // Initialize .env variables
+      require('dotenv').config({
+        path: this.path.resolve(this.remote.app.getAppPath(), '.env')
+      })
     }
   }
 }
