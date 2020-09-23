@@ -1,0 +1,13 @@
+@import '~@angular/material/theming';
+
+$theme: mat-light-theme((
+  color: (
+    primary: mat-palette($mat-blue),
+    accent: mat-palette($mat-light-blue, A700),
+    warn: mat-palette($mat-red, 600)
+  )
+));
+
+$primary: map-get($theme, primary);
+$accent: map-get($theme, accent);
+$warn: map-get($theme, warn);

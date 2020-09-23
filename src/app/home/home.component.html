@@ -1,9 +1,14 @@
-<div class="container" *ngIf="{initialized: (postgresService.initialized$ | async) || false, running: (postgresService.running$ | async) || false} as status">
+<div class="container" *ngIf="{initialized: (postgresService.initialized$ | async) || false, running: (postgresService.running$ | async) || false, pending: (postgresService.pending$ | async) || false} as status">
   <h1 class="title">Environment: {{ env }}</h1>
   <h1 class="title">PSQL Version: {{ postgresVersion }}</h1>
   <h1 class="title">Running: {{ status.running }}</h1>
 
-  <button (click)="postgresService.initDb()" [disabled]="status.initialized || status.running">Init DB</button>
-  <button (click)="postgresService.startDb()" [disabled]="!status.initialized || status.running">Start DB</button>
-  <button (click)="postgresService.stopDb()" [disabled]="!status.initialized || !status.running">Stop DB</button>
+  <div fxLayoutGap="16px">
+    <button mat-raised-button (click)="postgresService.initDb()" [disabled]="status.initialized || status.pending || status.running">
+      <mat-progress-spinner *ngIf="status.pending" class="spinner" diameter="20" mode="indeterminate" style="display: inline-flex"></mat-progress-spinner>
+      <span>Init DB</span>
+    </button>
+    <button mat-raised-button (click)="postgresService.startDb()" [disabled]="!status.initialized || status.pending || status.running">Start DB</button>
+    <button mat-raised-button (click)="postgresService.stopDb()" [disabled]="!status.initialized || status.pending || !status.running">Stop DB</button>
+  </div>
 </div>

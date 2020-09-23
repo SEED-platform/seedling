@@ -13,6 +13,14 @@ export class PostgresService {
   readonly initialized$ = this._initializedSubject.asObservable().pipe(distinctUntilChanged());
   private _runningSubject = new BehaviorSubject(false);
   readonly running$ = this._runningSubject.asObservable().pipe(distinctUntilChanged());
+  private _pendingSubject = new BehaviorSubject(true);
+  readonly pending$ = this._pendingSubject.asObservable().pipe(distinctUntilChanged());
+  private _sequelize = new this.electronService.Sequelize(process.env.PGDATABASE, process.env.PGUSER, process.env.PGPASSWORD, {
+    host: '127.0.0.1',
+    port: Number(process.env.PGPORT),
+    dialect: 'postgres',
+    dialectModule: this.electronService.pg
+  });
 
   constructor(
     private electronService: ElectronService,
@@ -22,10 +30,27 @@ export class PostgresService {
       electronService.remote.app.getAppPath(),
       AppConfig.environment === 'PROD' ? '../pg12/bin' : './resources/pg12/bin'
     );
-    console.log(this._postgresDir);
-    this._status().catch(code => {
+    this._status().finally(async () => {
+      const running = this._runningSubject.value;
+      const initialized = this._initializedSubject.value;
+      console.warn('RUNNING:', running);
+      console.warn('INITIALIZED:', initialized);
+      if (!initialized) {
+        await this.initDb();
+        await this.startDb();
+        await this._createDb();
+        await this._psql('DROP DATABASE postgres;');
+        await this._psql(`ALTER ROLE ${process.env.PGUSER} WITH PASSWORD '${process.env.PGPASSWORD}';`);
+        await this._psql('CREATE EXTENSION postgis;');
+        // await this._psql('SELECT postgis_full_version();');
+      }
+      this._pendingSubject.next(false);
+      this.running$.subscribe(running => {
+        if (running) {
+          // TODO sync db schema to create tables
+        }
+      });
     });
-    this.running$.subscribe(running => this._connectSequelize(running));
   }
 
   getPostgresVersion(): Promise<string> {
@@ -49,59 +74,122 @@ export class PostgresService {
     });
   }
 
-  initDb(): void {
-    let initOptions = ['-U', process.env.PGUSER];
-    if (process.platform === 'darwin') {
-      initOptions = initOptions.concat(['-A', 'trust']);
-    }
-
-    console.log('Initializing DB...');
-    const child = this.electronService.childProcess.spawn(this._resolve('initdb'), initOptions, {cwd: this._postgresDir});
-
-    child.stdout.on('data', (data: string) => this.ngZone.run(() => {
-      data = data.toString().trim();
-      console.log(`initDb stdout: '${data}'`);
-      if (data.startsWith('Success. You can now start the database server using')) {
-        this._initializedSubject.next(true);
+  // resolve if exit code === 0
+  initDb(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this._pendingSubject.next(true);
+      let initOptions = ['-U', process.env.PGUSER];
+      if (process.platform === 'darwin') {
+        initOptions = initOptions.concat(['-A', 'trust']);
       }
-    }));
-    child.stderr.on('data', (data: string) => {
-      data = data.toString().trim();
-      console.error(`initDb stderr: '${data}'`);
+
+      console.log('Initializing DB...');
+      const child = this.electronService.childProcess.spawn(this._resolve('initdb'), initOptions, {cwd: this._postgresDir});
+
+      child.stdout.on('data', (data: string) => this.ngZone.run(() => {
+        data = data.toString().trim();
+        console.log(`initDb stdout: '${data}'`);
+        if (data.startsWith('Success. You can now start the database server using')) {
+          this._initializedSubject.next(true);
+        }
+      }));
+      child.stderr.on('data', (data: string) => {
+        data = data.toString().trim();
+        console.error(`initDb stderr: '${data}'`);
+      });
+      child.on('close', (code) => this.ngZone.run(() => {
+        console.log(`initDb exited with code ${code}`);
+        if (code === 0) {
+          this._initializedSubject.next(true);
+          resolve();
+        } else {
+          reject();
+        }
+      }));
     });
-    child.on('close', (code) => this.ngZone.run(() => {
-      console.log(`initDb exited with code ${code}`);
-      if (code === 0) {
-        this._initializedSubject.next(true);
-      }
-    }));
   }
 
-  startDb(): void {
-    console.log('Starting DB...');
-    const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['start'], {cwd: this._postgresDir});
+  // resolve if exit code === 0
+  private _createDb(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      console.log('Creating DB...');
+      const child = this.electronService.childProcess.spawn(this._resolve('createdb'), {cwd: this._postgresDir});
 
-    child.stdout.on('data', (data: string) => this.ngZone.run(() => {
-      data = data.toString().trim();
-      console.log(`startDb stdout: '${data}'`);
-      if (data.endsWith('server started')) {
-        this._runningSubject.next(true);
-      } else if (data.endsWith('database system is shut down')) {
-        this._runningSubject.next(false);
-      }
-    }));
-    child.stderr.on('data', (data: string) => {
-      data = data.toString().trim();
-      console.error(`startDb stderr: '${data}'`);
+      child.stdout.on('data', (data: string) => this.ngZone.run(() => {
+        data = data.toString().trim();
+        console.log(`createDb stdout: '${data}'`);
+      }));
+      child.stderr.on('data', (data: string) => {
+        data = data.toString().trim();
+        console.error(`createDb stderr: '${data}'`);
+      });
+      child.on('close', (code) => this.ngZone.run(() => {
+        console.log(`createDb exited with code ${code}`);
+        if (code === 0) {
+          resolve();
+        } else {
+          reject();
+        }
+      }));
     });
-    child.on('close', (code) => {
-      console.log(`startDb exited with code ${code}`);
+  }
+
+  // resolve if exit code === 0
+  private _psql(query: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      console.log('psql', query);
+      const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['-c', query], {cwd: this._postgresDir});
+
+      child.stdout.on('data', (data: string) => this.ngZone.run(() => {
+        data = data.toString().trim();
+        console.log(`psql stdout: '${data}'`);
+        this._kill(child.pid);
+      }));
+      child.stderr.on('data', (data: string) => {
+        data = data.toString().trim();
+        console.error(`psql stderr: '${data}'`);
+      });
+      child.on('close', (code) => this.ngZone.run(() => {
+        console.log(`psql exited with code ${code}`);
+        if (code === 0) {
+          resolve();
+        } else {
+          reject();
+        }
+      }));
+    });
+  }
+
+  // resolve once started, reject if failure to start
+  startDb(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      console.log('Starting DB...');
+      const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['start', '--wait'], {cwd: this._postgresDir});
+
+      child.stdout.on('data', (data: string) => this.ngZone.run(() => {
+        data = data.toString().trim();
+        console.log(`startDb stdout: '${data}'`);
+        if (data.endsWith('server started')) {
+          this._runningSubject.next(true);
+          resolve();
+        } else if (data.endsWith('database system is shut down')) {
+          this._runningSubject.next(false);
+          reject();
+        }
+      }));
+      child.stderr.on('data', (data: string) => {
+        data = data.toString().trim();
+        console.error(`startDb stderr: '${data}'`);
+      });
+      child.on('close', (code) => {
+        console.log(`startDb exited with code ${code}`);
+      });
     });
   }
 
   stopDb(): void {
     console.log('Stopping DB...');
-    const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['stop'], {cwd: this._postgresDir});
+    const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['stop', '--wait'], {cwd: this._postgresDir});
 
     child.stdout.on('data', (data: string) => this.ngZone.run(() => {
       data = data.toString().trim();
@@ -114,6 +202,9 @@ export class PostgresService {
     child.stderr.on('data', (data: string) => {
       data = data.toString().trim();
       console.error(`stopDb stderr: '${data}'`);
+      if (data.endsWith('Is server running?')) {
+        this._runningSubject.next(false);
+      }
     });
     child.on('close', (code) => {
       console.log(`stopDb exited with code ${code}`);
@@ -126,15 +217,15 @@ export class PostgresService {
       const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['status'], {cwd: this._postgresDir});
       child.stdout.on('data', (data: string) => this.ngZone.run(() => {
         data = data.toString().trim();
-        console.log(`status stdous: '${data}'`);
+        console.log(`status stdout: '${data}'`);
         if (`${data}`.startsWith('pg_ctl: server is running')) {
-          resolve(true);
           this._initializedSubject.next(true);
           this._runningSubject.next(true);
+          resolve(true);
         } else if (data === 'pg_ctl: no server running') {
-          resolve(false);
           this._initializedSubject.next(true);
           this._runningSubject.next(false);
+          resolve(false);
         }
         this._kill(child.pid);
       }));
@@ -146,13 +237,13 @@ export class PostgresService {
         console.log(`status exited with code ${code}`);
         if (code === 3) {
           // Initialized but not running
-          resolve(false);
           this._initializedSubject.next(true);
           this._runningSubject.next(false);
+          resolve(false);
         } else if (code === 4) {
-          reject(code);
           this._initializedSubject.next(false);
           this._runningSubject.next(false);
+          reject(code);
         }
       }));
     });
@@ -167,10 +258,5 @@ export class PostgresService {
     if (process.platform === 'win32') {
       this.electronService.childProcess.spawn('taskkill', ['/pid', String(pid), '/f', '/t']);
     }
-  }
-
-  private _connectSequelize(connect: boolean) {
-    console.log('connecting!', connect);
-    // new Sequelize('postgres://seeduser:supersecretpassword@127.0.0.1:5442/seed')
   }
 }

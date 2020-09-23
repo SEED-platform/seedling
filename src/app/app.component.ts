@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ElectronService } from './core/services/electron/electron.service';
 import { TranslateService } from '@ngx-translate/core';
 import { AppConfig } from '../environments/environment';
+import OverlayScrollbars from 'overlayscrollbars';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +10,10 @@ import { AppConfig } from '../environments/environment';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  scrollOptions: OverlayScrollbars.Options = {
+    sizeAutoCapable: false
+  };
+
   constructor(
     private electronService: ElectronService,
     private translate: TranslateService
@@ -19,6 +24,7 @@ export class AppComponent {
     if (electronService.isElectron) {
       process.env.PGDATABASE = 'seed';
       process.env.PGUSER = 'seeduser';
+      process.env.PGPASSWORD = 'password';
       process.env.PGPORT = '5442';
 
       let basePath;

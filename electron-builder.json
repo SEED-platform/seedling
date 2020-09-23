@@ -1,5 +1,5 @@
 {
-  "productName": "angular-electron",
+  "productName": "SEED CBL",
   "directories": {
     "output": "release/"
   },
@@ -29,21 +29,15 @@
     }
   ],
   "win": {
-    "icon": "dist/assets/icons",
+    "icon": "dist/assets/icons/icon.ico",
     "target": [
-      "portable"
+      "nsis"
     ]
   },
   "mac": {
-    "icon": "dist/assets/icons",
+    "icon": "dist/assets/icons/icon.icns",
     "target": [
       "dmg"
-    ]
-  },
-  "linux": {
-    "icon": "dist/assets/icons",
-    "target": [
-      "AppImage"
     ]
   }
 }

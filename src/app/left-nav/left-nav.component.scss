@@ -1,0 +1,23 @@
+:host {
+  background-color: #4a4a52;
+  color: #fff;
+  display: flex;
+  width: 54px;
+}
+
+div {
+  align-items: center;
+  display: flex;
+  height: 54px;
+  justify-content: center;
+  width: 54px;
+
+  &:hover {
+    background-color: #3e3e45;
+    cursor: pointer;
+  }
+
+  &.bordered {
+    border-bottom: 1px solid #2b2b32;
+  }
+}
