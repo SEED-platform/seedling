@@ -160,6 +160,34 @@ export class PostgresService {
     });
   }
 
+  // resolve if exit code === 0
+  returnPsql(query: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      console.log('psql', query);
+      const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['-c', query], {cwd: this._postgresDir});
+
+      child.stdout.on('data', (data: string) => this.ngZone.run(() => {
+        data = data.toString().trim();
+        console.log(`psql stdout: '${data}'`);
+        this._kill(child.pid);
+        resolve(data)
+      }));
+      child.stderr.on('data', (data: string) => {
+        data = data.toString().trim();
+        console.error(`psql stderr: '${data}'`);
+        reject(data)
+      });
+      child.on('close', (code) => this.ngZone.run(() => {
+        console.log(`psql exited with code ${code}`);
+        if (code === 0) {
+          resolve(code.toString());
+        } else {
+          reject(code.toString());
+        }
+      }));
+    });
+  }
+
   // resolve once started, reject if failure to start
   startDb(): Promise<void> {
     return new Promise((resolve, reject) => {
