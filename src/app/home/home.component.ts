@@ -12,6 +12,8 @@ export class HomeComponent implements OnInit {
   postgresVersion: string;
   readonly env: string;
 
+  latestQueryResult = '';  
+
   constructor(
     public postgresService: PostgresService
   ) {
@@ -26,5 +28,16 @@ export class HomeComponent implements OnInit {
     this.postgresService.getPostgresVersion()
       .then(version => this.postgresVersion = version)
       .catch(() => this.postgresVersion = "Postgres not installed correctly.");
+  }
+
+  clearQueryResult(): void {
+    this.latestQueryResult = '';
+  }
+
+  returnPsql():void {    
+    this.latestQueryResult = '...';
+    this.postgresService.returnPsql('SELECT postgis_full_version();')
+      .then(data => this.latestQueryResult = data)
+      .catch(data => this.latestQueryResult = data);
   }
 }
