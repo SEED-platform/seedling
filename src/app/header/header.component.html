@@ -1,6 +1,6 @@
 <div class="logo_text" fxLayoutAlign=" center">
   <div class="menu">
-    <button mat-icon-button color="accent" aria-label="Example icon button with a menu icon">
+    <button mat-icon-button color="accent" (click)="sharedService.toggleExpandedNav()" aria-label="Example icon button with a menu icon">
       <mat-icon>menu</mat-icon>
     </button>
   </div>

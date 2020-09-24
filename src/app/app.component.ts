@@ -3,6 +3,7 @@ import { ElectronService } from './core/services/electron/electron.service';
 import { TranslateService } from '@ngx-translate/core';
 import { AppConfig } from '../environments/environment';
 import OverlayScrollbars from 'overlayscrollbars';
+import { SharedService } from './core/services/shared/shared.service';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,7 @@ export class AppComponent {
   };
 
   constructor(
+    public sharedService: SharedService,
     private electronService: ElectronService,
     private translate: TranslateService
   ) {
