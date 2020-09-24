@@ -1,7 +1,7 @@
 {
-  "name": "seed-cbl",
+  "name": "cbl-generator",
   "version": "1.0.0",
-  "description": "SEED Covered Buildings List",
+  "description": "Covered Buildings List Generator",
   "homepage": "https://seed-platform.org/",
   "author": {
     "name": "NREL"

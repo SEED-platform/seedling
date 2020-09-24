@@ -9,6 +9,9 @@
       <span>Init DB</span>
     </button>
     <button mat-raised-button (click)="postgresService.startDb()" [disabled]="!status.initialized || status.pending || status.running">Start DB</button>
-    <button mat-raised-button (click)="postgresService.stopDb()" [disabled]="!status.initialized || status.pending || !status.running">Stop DB</button>
+    <button mat-raised-button (click)="postgresService.stopDb(); clearQueryResult()" [disabled]="!status.initialized || status.pending || !status.running">Stop DB</button>
+    <button mat-raised-button (click)="returnPsql()" [disabled]="!status.initialized || status.pending || !status.running">Query PostGIS version</button>
   </div>
+
+  <textarea disabled>{{ latestQueryResult }}</textarea>
 </div>
