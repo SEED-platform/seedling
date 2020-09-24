@@ -18,6 +18,8 @@ import { HomeComponent } from './home/home.component';
 import { LeftNavComponent } from './left-nav/left-nav.component';
 import { MaterialModule } from './material-module';
 import { SharedModule } from './shared/shared.module';
+import { MapComponent } from './map/map.component';
+import { InventoryComponent } from './inventory/inventory.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -29,7 +31,9 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     AppComponent,
     HomeComponent,
     HeaderComponent,
-    LeftNavComponent
+    LeftNavComponent,
+    MapComponent,
+    InventoryComponent
   ],
   imports: [
     AppRoutingModule,
