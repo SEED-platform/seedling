@@ -3,17 +3,45 @@
   color: #fff;
   display: flex;
   flex-direction: column;
+  transition: width 500ms;
   width: 54px;
+
+  &.expanded {
+    width: 260px;
+
+    div > span {
+      opacity: 1;
+    }
+  }
 }
 
 div {
-  align-items: center;
-  display: flex;
-  height: 54px;
-  justify-content: center;
-  width: 54px;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  overflow-x: hidden;
+  text-transform: uppercase;
+  white-space: nowrap;
+  width: 100%;
 
-  &:hover {
+  i {
+    align-items: center;
+    display: inline-flex;
+    height: 54px;
+    justify-content: center;
+    width: 54px;
+  }
+
+  > span {
+    opacity: 0;
+    transition: opacity 500ms;
+  }
+
+  &.active {
+    background-color: #2b2b32;
+  }
+
+  &:hover:not(.active) {
     background-color: #3e3e45;
     cursor: pointer;
   }

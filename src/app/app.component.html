@@ -1,5 +1,5 @@
 <div fxLayout="row" fxFlexFill>
-  <app-left-nav></app-left-nav>
+  <app-left-nav [ngClass]="{'expanded': (sharedService.expandedNav$ | async)}"></app-left-nav>
   <div fxFlex fxLayout="column">
     <app-header></app-header>
     <overlay-scrollbars [options]="scrollOptions" fxFlex id="body-container">

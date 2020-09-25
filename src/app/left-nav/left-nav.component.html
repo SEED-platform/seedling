@@ -1,6 +1,8 @@
-<div class="bordered" routerLink="/">
+<div class="bordered" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
   <i class="fas fa-cog"></i>
+  <span>Config</span>
 </div>
-<div routerLink="/inventory">
-    <i class="fas fa-map" router></i>
+<div routerLink="/inventory" routerLinkActive="active">
+  <i class="fas fa-map"></i>
+  <span>Map</span>
 </div>
