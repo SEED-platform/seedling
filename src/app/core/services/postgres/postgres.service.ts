@@ -21,6 +21,17 @@ export class PostgresService {
     dialect: 'postgres',
     dialectModule: this.electronService.pg
   });
+  private _umzug = new this.electronService.Umzug({
+    migrations: {
+      path: this.electronService.path.resolve(this.electronService.remote.app.getAppPath(), 'server', 'migrations'),
+      params: [
+        this._sequelize.getQueryInterface()
+      ]
+    },
+    storage: new this.electronService.SequelizeStorage({ sequelize: this._sequelize})
+  });
+  Property: any;
+  TaxLot: any;
 
   constructor(
     private electronService: ElectronService,
@@ -42,12 +53,11 @@ export class PostgresService {
         await this._psql('DROP DATABASE postgres;');
         await this._psql(`ALTER ROLE ${process.env.PGUSER} WITH PASSWORD '${process.env.PGPASSWORD}';`);
         await this._psql('CREATE EXTENSION postgis;');
-        // await this._psql('SELECT postgis_full_version();');
       }
       this._pendingSubject.next(false);
-      this.running$.subscribe(running => {
+      this.running$.subscribe(async (running) => {
         if (running) {
-          // TODO sync db schema to create tables
+          await this._checkMigrationsAndInitModels();
         }
       });
     });
@@ -213,6 +223,45 @@ export class PostgresService {
         console.log(`startDb exited with code ${code}`);
       });
     });
+  }
+
+  _checkMigrationsAndInitModels(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this._umzug.pending().then(async (migrations) => {
+        if (migrations.length) {
+          await this._umzug.up();
+        }
+        this.Property = this._sequelize.define('property', { 
+          extra_data: {
+            type: this.electronService.DataTypes.JSONB
+          },
+          footprint: {
+            type: this.electronService.DataTypes.GEOMETRY('POLYGON', 4326)
+          },
+          long_lat: {
+            type: this.electronService.DataTypes.GEOMETRY('POINT', 4326)
+          },
+          ubid: {
+            type: this.electronService.DataTypes.STRING
+          }
+        }, {});
+        this.TaxLot = this._sequelize.define('tax_lot', { 
+          extra_data: {
+            type: this.electronService.DataTypes.JSONB
+          },
+          footprint: {
+            type: this.electronService.DataTypes.GEOMETRY('POLYGON', 4326)
+          },
+          ubid: {
+            type: this.electronService.DataTypes.STRING
+          }
+        }, {});
+        resolve();
+      }).catch((err: string) => {
+        console.error(`There was an error looking for migrations: ${err}`)
+        reject(err);
+      })
+    })
   }
 
   stopDb(): void {
