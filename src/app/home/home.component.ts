@@ -40,4 +40,34 @@ export class HomeComponent implements OnInit {
       .then(data => this.latestQueryResult = data)
       .catch(data => this.latestQueryResult = data);
   }
+
+  async testButton() {
+    // this.postgresService.Property.create({
+    //   footprint: { 
+    //     type: 'Polygon',
+    //     coordinates: [
+    //       [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
+    //     ],
+    //     crs: { type: 'name', properties: { name: 'EPSG:4326'} }
+    //   }
+    // }).catch((err) => { 
+    //   console.log(err);
+    // });
+    // const property = await this.postgresService.Property.findByPk(2)
+    // property.footprint.coordinates
+
+    // this.postgresService.TaxLot.create({
+    //   footprint: { 
+    //     type: 'Polygon',
+    //     coordinates: [
+    //       [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
+    //     ],
+    //     crs: { type: 'name', properties: { name: 'EPSG:4326'} }
+    //   }
+    // }).catch((err) => { 
+    //   console.log(err);
+    // });
+
+    debugger;
+  }
 }
