@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AppConfig } from '../../environments/environment';
 import { PostgresService } from '../core/services/postgres/postgres.service';
+import { PropertyService } from '../core/services/property/property.service';
+import { TaxLotService } from '../core/services/tax-lot/tax-lot.service';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +17,9 @@ export class HomeComponent implements OnInit {
   latestQueryResult = '';  
 
   constructor(
-    public postgresService: PostgresService
+    public postgresService: PostgresService,
+    private propertyService: PropertyService,
+    private taxlotService: TaxLotService
   ) {
     this.env = AppConfig.environment;
   }
@@ -42,7 +46,7 @@ export class HomeComponent implements OnInit {
   }
 
   async testButton() {
-    // this.postgresService.Property.create({
+    // this.propertyService.model.create({
     //   footprint: { 
     //     type: 'Polygon',
     //     coordinates: [
@@ -53,10 +57,10 @@ export class HomeComponent implements OnInit {
     // }).catch((err) => { 
     //   console.log(err);
     // });
-    // const property = await this.postgresService.Property.findByPk(2)
-    // property.footprint.coordinates
+    const property = await this.propertyService.model.findByPk(2)
+    property.footprint.coordinates
 
-    // this.postgresService.TaxLot.create({
+    // this.taxlotService.model.create({
     //   footprint: { 
     //     type: 'Polygon',
     //     coordinates: [

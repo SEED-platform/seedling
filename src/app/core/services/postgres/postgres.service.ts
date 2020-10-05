@@ -15,7 +15,7 @@ export class PostgresService {
   readonly running$ = this._runningSubject.asObservable().pipe(distinctUntilChanged());
   private _pendingSubject = new BehaviorSubject(true);
   readonly pending$ = this._pendingSubject.asObservable().pipe(distinctUntilChanged());
-  private _sequelize = new this.electronService.Sequelize(process.env.PGDATABASE, process.env.PGUSER, process.env.PGPASSWORD, {
+  sequelize = new this.electronService.Sequelize(process.env.PGDATABASE, process.env.PGUSER, process.env.PGPASSWORD, {
     host: '127.0.0.1',
     port: Number(process.env.PGPORT),
     dialect: 'postgres',
@@ -25,13 +25,11 @@ export class PostgresService {
     migrations: {
       path: this.electronService.path.resolve(this.electronService.remote.app.getAppPath(), 'server', 'migrations'),
       params: [
-        this._sequelize.getQueryInterface()
+        this.sequelize.getQueryInterface()
       ]
     },
-    storage: new this.electronService.SequelizeStorage({ sequelize: this._sequelize})
+    storage: new this.electronService.SequelizeStorage({ sequelize: this.sequelize})
   });
-  Property: any;
-  TaxLot: any;
 
   constructor(
     private electronService: ElectronService,
@@ -57,7 +55,7 @@ export class PostgresService {
       this._pendingSubject.next(false);
       this.running$.subscribe(async (running) => {
         if (running) {
-          await this._checkMigrationsAndInitModels();
+          await this._checkMigrations();
         }
       });
     });
@@ -225,37 +223,12 @@ export class PostgresService {
     });
   }
 
-  _checkMigrationsAndInitModels(): Promise<void> {
+  _checkMigrations(): Promise<void> {
     return new Promise((resolve, reject) => {
       this._umzug.pending().then(async (migrations) => {
         if (migrations.length) {
           await this._umzug.up();
         }
-        this.Property = this._sequelize.define('property', { 
-          extra_data: {
-            type: this.electronService.DataTypes.JSONB
-          },
-          footprint: {
-            type: this.electronService.DataTypes.GEOMETRY('POLYGON', 4326)
-          },
-          long_lat: {
-            type: this.electronService.DataTypes.GEOMETRY('POINT', 4326)
-          },
-          ubid: {
-            type: this.electronService.DataTypes.STRING
-          }
-        }, {});
-        this.TaxLot = this._sequelize.define('tax_lot', { 
-          extra_data: {
-            type: this.electronService.DataTypes.JSONB
-          },
-          footprint: {
-            type: this.electronService.DataTypes.GEOMETRY('POLYGON', 4326)
-          },
-          ubid: {
-            type: this.electronService.DataTypes.STRING
-          }
-        }, {});
         resolve();
       }).catch((err: string) => {
         console.error(`There was an error looking for migrations: ${err}`)
