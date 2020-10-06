@@ -19,7 +19,7 @@ export class TaxLotService {
       footprint: {
         type: electronService.DataTypes.GEOMETRY('POLYGON', 4326)
       },
-      ubid: {
+      ulid: {
         type: electronService.DataTypes.STRING
       }
     }, {});
