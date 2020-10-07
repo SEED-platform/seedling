@@ -15,11 +15,20 @@ export class PostgresService {
   readonly running$ = this._runningSubject.asObservable().pipe(distinctUntilChanged());
   private _pendingSubject = new BehaviorSubject(true);
   readonly pending$ = this._pendingSubject.asObservable().pipe(distinctUntilChanged());
-  private _sequelize = new this.electronService.Sequelize(process.env.PGDATABASE, process.env.PGUSER, process.env.PGPASSWORD, {
+  sequelize = new this.electronService.Sequelize(process.env.PGDATABASE, process.env.PGUSER, process.env.PGPASSWORD, {
     host: '127.0.0.1',
     port: Number(process.env.PGPORT),
     dialect: 'postgres',
     dialectModule: this.electronService.pg
+  });
+  private _umzug = new this.electronService.Umzug({
+    migrations: {
+      path: this.electronService.path.resolve(this.electronService.remote.app.getAppPath(), 'server', 'migrations'),
+      params: [
+        this.sequelize.getQueryInterface()
+      ]
+    },
+    storage: new this.electronService.SequelizeStorage({ sequelize: this.sequelize})
   });
 
   constructor(
@@ -42,12 +51,11 @@ export class PostgresService {
         await this._psql('DROP DATABASE postgres;');
         await this._psql(`ALTER ROLE ${process.env.PGUSER} WITH PASSWORD '${process.env.PGPASSWORD}';`);
         await this._psql('CREATE EXTENSION postgis;');
-        // await this._psql('SELECT postgis_full_version();');
       }
       this._pendingSubject.next(false);
-      this.running$.subscribe(running => {
+      this.running$.subscribe(async (running) => {
         if (running) {
-          // TODO sync db schema to create tables
+          await this._checkMigrations();
         }
       });
     });
@@ -213,6 +221,20 @@ export class PostgresService {
         console.log(`startDb exited with code ${code}`);
       });
     });
+  }
+
+  _checkMigrations(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this._umzug.pending().then(async (migrations) => {
+        if (migrations.length) {
+          await this._umzug.up();
+        }
+        resolve();
+      }).catch((err: string) => {
+        console.error(`There was an error looking for migrations: ${err}`)
+        reject(err);
+      })
+    })
   }
 
   stopDb(): void {
