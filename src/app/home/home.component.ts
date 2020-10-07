@@ -82,7 +82,8 @@ export class HomeComponent implements OnInit {
     //       ]
     //     ],
     //     crs: { type: 'name', properties: { name: 'EPSG:4326'} }
-    //   }
+    //   },
+    //   ubid: "test value 1"
     // }).catch((err) => { 
     //   console.log(err);
     // });
@@ -114,7 +115,8 @@ export class HomeComponent implements OnInit {
     //       ]
     //     ],
     //     crs: { type: 'name', properties: { name: 'EPSG:4326'} }
-    //   }
+    //   },
+    //   ubid: "test value 2"
     // }).catch((err) => { 
     //   console.log(err);
     // });
@@ -132,7 +134,8 @@ export class HomeComponent implements OnInit {
     //       ]
     //     ],
     //     crs: { type: 'name', properties: { name: 'EPSG:4326'} }
-    //   }
+    //   },
+    //   ulid: "test value 3"
     // }).catch((err) => { 
     //   console.log(err);
     // });
@@ -149,8 +152,9 @@ export class HomeComponent implements OnInit {
     //         [37.39262499999998, -121.9214062499999] 
     //       ]
     //     ],
-    //     crs: { type: 'name', properties: { name: 'EPSG:4326'} }
-    //   }
+    //     crs: { type: 'name', properties: { name: 'EPSG:4326'} },
+    //   },
+    //   ulid: "test value 4"
     // }).catch((err) => { 
     //   console.log(err);
     // });
