@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { PropertyService } from '../core/services/property/property.service';
-
+import { TaxLotService } from '../core/services/tax-lot/tax-lot.service';
 
 @Component({
-  selector: 'app-properties-upload',
-  templateUrl: './properties-upload.component.html',
-  styleUrls: ['./properties-upload.component.scss']
+  selector: 'app-taxlots-upload',
+  templateUrl: './taxlots-upload.component.html',
+  styleUrls: ['./taxlots-upload.component.scss']
 })
-export class PropertiesUploadComponent implements OnInit {
-  
-  constructor(private propertyService: PropertyService) { }
+export class TaxlotsUploadComponent implements OnInit {
+
+  constructor(private taxlotService: TaxLotService) { }
 
   ngOnInit(): void {
   }
@@ -28,10 +27,10 @@ export class PropertiesUploadComponent implements OnInit {
           const ubid = extra_data.UBID;
           delete extra_data.UBID;
           
-          this.propertyService.model.create({
+          this.taxlotService.model.create({
             extra_data: extra_data,
             footprint: feature.geometry,
-            ubid: ubid
+            ulid: ubid
           }).catch((err) => { 
             console.error(err);
           });

@@ -21,6 +21,7 @@ import { SharedModule } from './shared/shared.module';
 import { MapComponent } from './map/map.component';
 import { InventoryComponent } from './inventory/inventory.component';
 import { PropertiesUploadComponent } from './properties-upload/properties-upload.component';
+import { TaxlotsUploadComponent } from './taxlots-upload/taxlots-upload.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -35,7 +36,8 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     LeftNavComponent,
     MapComponent,
     InventoryComponent,
-    PropertiesUploadComponent
+    PropertiesUploadComponent,
+    TaxlotsUploadComponent
   ],
   imports: [
     AppRoutingModule,
