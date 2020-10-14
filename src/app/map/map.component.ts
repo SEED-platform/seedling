@@ -53,12 +53,12 @@ export class MapComponent implements OnInit {
       values[0].forEach(property => {
         if (property.footprint) {
           const footprintCoords = property.footprint.coordinates[0].map(coords => {
-            return new Microsoft.Maps.Location(...coords)
+            return new Microsoft.Maps.Location(...coords.reverse())
           })
           const polygon = new Microsoft.Maps.Polygon(footprintCoords);
           const infobox = new Microsoft.Maps.Infobox(footprintCoords[0], {
             title: 'Property Information',
-            description: property.ubid,
+            description: JSON.stringify(property.extra_data),
             visible: false
           });
           infobox.setMap(this.map);
@@ -80,12 +80,12 @@ export class MapComponent implements OnInit {
       values[1].forEach(taxlot => {
         if (taxlot.footprint) {
           const footprintCoords = taxlot.footprint.coordinates[0].map(coords => {
-            return new Microsoft.Maps.Location(...coords)
+            return new Microsoft.Maps.Location(...coords.reverse())
           })
           const polygon = new Microsoft.Maps.Polygon(footprintCoords, this.styles.polygonOptions);
           const infobox = new Microsoft.Maps.Infobox(footprintCoords[0], {
             title: 'Tax Lot Information',
-            description: taxlot.ulid,
+            description: JSON.stringify(taxlot.extra_data),
             visible: false
           });
           infobox.setMap(this.map);
@@ -106,10 +106,12 @@ export class MapComponent implements OnInit {
       this.map.layers.insert(propertyLayer);
       this.map.layers.insert(taxlotLayer);
 
-      // allFootprints used because can't find attribute of map or layers to get shapes
-      this.map.setView({
-        bounds: new Microsoft.Maps.LocationRect.fromShapes(allFootprints)
-      })
+      if (allFootprints.length) {
+        // allFootprints used because can't find attribute of map or layers to get shapes
+        this.map.setView({
+          bounds: new Microsoft.Maps.LocationRect.fromShapes(allFootprints)
+        });
+      }
     })
   }
 }
