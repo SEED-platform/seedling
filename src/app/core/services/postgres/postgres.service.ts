@@ -56,6 +56,9 @@ export class PostgresService {
       this.running$.subscribe(async (running) => {
         if (running) {
           await this._checkMigrations();
+        } else {
+          await this.startDb();
+          await this._checkMigrations();
         }
       });
     });
