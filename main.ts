@@ -1,4 +1,5 @@
 import { app, BrowserWindow, screen } from 'electron';
+import { spawnSync } from 'child_process';
 import * as path from 'path';
 import * as url from 'url';
 import * as windowStateKeeper from 'electron-window-state';
@@ -10,6 +11,27 @@ const args = process.argv.slice(1),
 // allow https://localhost:4200
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
 app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
+
+// Set env vars for Postgres
+process.env.PGDATABASE = 'seed';
+process.env.PGUSER = 'seeduser';
+process.env.PGPASSWORD = 'password';
+process.env.PGPORT = '5442';
+let basePath;
+if (process.platform === 'win32') {
+  basePath = path.resolve(process.env.ProgramData);
+} else if (process.platform === 'darwin') {
+  basePath = path.resolve(`${process.env.HOME}/Library/Application Support/`);
+}
+
+process.env.PG_EXECS_DIR = path.resolve(
+  app.getAppPath(),
+  app.isPackaged ? '../pg12/bin' : './resources/pg12/bin'
+);
+const envName = app.isPackaged ? 'PROD' : 'DEV';
+process.env.PGDATA = path.join(basePath, 'SEED-Platform', envName, 'pg12');
+
+
 
 function createWindow(): BrowserWindow {
 
@@ -68,6 +90,9 @@ function createWindow(): BrowserWindow {
 
   // Emitted when the window is closed.
   win.on('closed', () => {
+    // Stop postgres
+    spawnSync(path.resolve(process.env.PG_EXECS_DIR, 'pg_ctl'), ['stop', '--wait']);
+
     // Dereference the window object, usually you would store window
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
