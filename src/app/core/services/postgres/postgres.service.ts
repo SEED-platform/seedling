@@ -235,30 +235,6 @@ export class PostgresService {
     })
   }
 
-  stopDb(): void {
-    console.log('Stopping DB...');
-    const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['stop', '--wait'], {cwd: process.env.PG_EXECS_DIR});
-
-    child.stdout.on('data', (data: string) => this.ngZone.run(() => {
-      data = data.toString().trim();
-      console.log(`stopDb stdout: '${data}'`);
-      if (data.endsWith('server stopped')) {
-        this._runningSubject.next(false);
-      }
-      this._kill(child.pid);
-    }));
-    child.stderr.on('data', (data: string) => {
-      data = data.toString().trim();
-      console.error(`stopDb stderr: '${data}'`);
-      if (data.endsWith('Is server running?')) {
-        this._runningSubject.next(false);
-      }
-    });
-    child.on('close', (code) => {
-      console.log(`stopDb exited with code ${code}`);
-    });
-  }
-
   // Resolve with boolean if running/not-running, reject with exit code if failure
   private _status(): Promise<boolean> {
     return new Promise((resolve, reject) => {
