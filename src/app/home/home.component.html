@@ -1,7 +1,10 @@
-<div class="container" *ngIf="{initialized: (postgresService.initialized$ | async) || false, running: (postgresService.running$ | async) || false, pending: (postgresService.pending$ | async) || false} as status">
-  <div fxLayoutGap="16px">
+<div class="container" *ngIf="{initialized: (postgresService.initialized$ | async) || false, running: (postgresService.running$ | async) || false, pending: (postgresService.pending$ | async) || false} as status" >
+  <div *ngIf="status.pending" class="spinner-container">
+    <div>Setting up Seedling...</div>
+    <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
   </div>
 
+  <div [ngStyle]="{'opacity': status.pending ? '0.3' : '1'}">
     <div>
       <h1>Upload Data</h1>
       <app-properties-upload></app-properties-upload>
