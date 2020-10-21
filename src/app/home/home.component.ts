@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { AppConfig } from '../../environments/environment';
 import { PostgresService } from '../core/services/postgres/postgres.service';
 import { PropertyService } from '../core/services/property/property.service';
 import { TaxLotService } from '../core/services/tax-lot/tax-lot.service';
@@ -12,7 +11,6 @@ import { TaxLotService } from '../core/services/tax-lot/tax-lot.service';
 export class HomeComponent implements OnInit {
   directoryContents: string[];
   postgresVersion: string;
-  readonly env: string;
 
   latestQueryResult = '';  
 
@@ -20,9 +18,7 @@ export class HomeComponent implements OnInit {
     public postgresService: PostgresService,
     private propertyService: PropertyService,
     private taxlotService: TaxLotService
-  ) {
-    this.env = AppConfig.environment;
-  }
+  ) { }
 
   ngOnInit(): void {
     this._getPostgresVersion();

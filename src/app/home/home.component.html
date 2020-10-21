@@ -1,11 +1,14 @@
 <div class="container" *ngIf="{initialized: (postgresService.initialized$ | async) || false, running: (postgresService.running$ | async) || false, pending: (postgresService.pending$ | async) || false} as status">
-  <h1 class="title">Environment: {{ env }}</h1>
-  <h1 class="title">PSQL Version: {{ postgresVersion }}</h1>
-  <h1 class="title">Running: {{ status.running }}</h1>
-
   <div fxLayoutGap="16px">
   </div>
 
-  <app-properties-upload></app-properties-upload>
-  <app-taxlots-upload></app-taxlots-upload>
+    <div>
+      <h1>Upload Data</h1>
+      <app-properties-upload></app-properties-upload>
+      <app-taxlots-upload></app-taxlots-upload>
+    </div>
+
+    <h4 class="title">PSQL Version: {{ postgresVersion }}</h4>
+    <h4 class="title">Database Running: {{ status.running }}</h4>
+  </div>
 </div>
