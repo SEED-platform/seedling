@@ -28,6 +28,14 @@ export class HomeComponent implements OnInit {
     this._getPostgresVersion();
   }
 
+  private _deleteProperties(): void {
+    this.propertyService.model.destroy({where: {}})
+  }
+
+  private _deleteTaxLots(): void {
+    this.taxlotService.model.destroy({where: {}})
+  }
+
   private _getPostgresVersion() {
     this.postgresService.getPostgresVersion()
       .then(version => this.postgresVersion = version)

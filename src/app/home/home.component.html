@@ -14,6 +14,12 @@
     <button mat-raised-button (click)="testButton()" [disabled]="!status.initialized || status.pending || !status.running">TestButton</button>
   </div>
 
+  <div>
+    <h3>Delete Data</h3>
+    <button (click)="_deleteProperties()">Delete All Properties</button>
+    <button (click)="_deleteTaxLots()">Delete All Tax Lots</button>
+  </div>
+
   <textarea disabled>{{ latestQueryResult }}</textarea>
   
   <app-properties-upload></app-properties-upload>
