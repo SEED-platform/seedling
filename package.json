@@ -1,7 +1,7 @@
 {
-  "name": "cbl-generator",
+  "name": "seedling",
   "version": "1.0.0",
-  "description": "Covered Buildings List Generator",
+  "description": "SEEDling - Covered Buildings List Generator",
   "homepage": "https://seed-platform.org/",
   "author": {
     "name": "NREL"
