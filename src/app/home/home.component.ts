@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit {
   postgresVersion: string;
   readonly env: string;
 
-  latestQueryResult = '';  
+  latestQueryResult = '';
 
   constructor(
     public postgresService: PostgresService,
@@ -28,11 +28,11 @@ export class HomeComponent implements OnInit {
     this._getPostgresVersion();
   }
 
-  private _deleteProperties(): void {
+  deleteProperties(): void {
     this.propertyService.model.destroy({where: {}})
   }
 
-  private _deleteTaxLots(): void {
+  deleteTaxLots(): void {
     this.taxlotService.model.destroy({where: {}})
   }
 
@@ -46,7 +46,7 @@ export class HomeComponent implements OnInit {
     this.latestQueryResult = '';
   }
 
-  returnPsql():void {    
+  returnPsql():void {
     this.latestQueryResult = '...';
     this.postgresService.returnPsql('SELECT postgis_full_version();')
       .then(data => this.latestQueryResult = data)
@@ -55,7 +55,7 @@ export class HomeComponent implements OnInit {
 
   async testButton() {
     // this.propertyService.model.create({
-    //   footprint: { 
+    //   footprint: {
     //     type: 'Polygon',
     //     coordinates: [
     //       [
@@ -86,18 +86,18 @@ export class HomeComponent implements OnInit {
     //         [37.3935488099458, -121.923103636973],
     //         [37.3935622830086, -121.923168133175],
     //         [37.3934598037207, -121.923206355467],
-    //         [37.3934010356015, -121.923334302218] 
+    //         [37.3934010356015, -121.923334302218]
     //       ]
     //     ],
     //     crs: { type: 'name', properties: { name: 'EPSG:4326'} }
     //   },
     //   ubid: "test value 1"
-    // }).catch((err) => { 
+    // }).catch((err) => {
     //   console.log(err);
     // });
 
     // this.propertyService.model.create({
-    //   footprint: { 
+    //   footprint: {
     //     type: 'Polygon',
     //     coordinates: [
     //       [
@@ -125,12 +125,12 @@ export class HomeComponent implements OnInit {
     //     crs: { type: 'name', properties: { name: 'EPSG:4326'} }
     //   },
     //   ubid: "test value 2"
-    // }).catch((err) => { 
+    // }).catch((err) => {
     //   console.log(err);
     // });
-    
+
     // this.taxlotService.model.create({
-    //   footprint: { 
+    //   footprint: {
     //     type: 'Polygon',
     //     coordinates: [
     //       [
@@ -138,18 +138,18 @@ export class HomeComponent implements OnInit {
     //         [37.39417500000001, -121.9221875000002],
     //         [37.39417500000001, -121.9236249999998],
     //         [37.39339999999999, -121.9236249999998],
-    //         [37.39339999999999, -121.9221875000002] 
+    //         [37.39339999999999, -121.9221875000002]
     //       ]
     //     ],
     //     crs: { type: 'name', properties: { name: 'EPSG:4326'} }
     //   },
     //   ulid: "test value 3"
-    // }).catch((err) => { 
+    // }).catch((err) => {
     //   console.log(err);
     // });
 
     // this.taxlotService.model.create({
-    //   footprint: { 
+    //   footprint: {
     //     type: 'Polygon',
     //     coordinates: [
     //       [
@@ -157,13 +157,13 @@ export class HomeComponent implements OnInit {
     //         [37.39370000000002, -121.9214062499999],
     //         [37.39370000000002, -121.9223125000001],
     //         [37.39262499999998, -121.9223125000001],
-    //         [37.39262499999998, -121.9214062499999] 
+    //         [37.39262499999998, -121.9214062499999]
     //       ]
     //     ],
     //     crs: { type: 'name', properties: { name: 'EPSG:4326'} },
     //   },
     //   ulid: "test value 4"
-    // }).catch((err) => { 
+    // }).catch((err) => {
     //   console.log(err);
     // });
 
