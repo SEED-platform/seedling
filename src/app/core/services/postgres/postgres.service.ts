@@ -8,7 +8,6 @@ import { ElectronService } from '../electron/electron.service';
   providedIn: 'root'
 })
 export class PostgresService {
-  private readonly _postgresDir: string;
   private _initializedSubject = new BehaviorSubject(false);
   readonly initialized$ = this._initializedSubject.asObservable().pipe(distinctUntilChanged());
   private _runningSubject = new BehaviorSubject(false);
@@ -35,10 +34,6 @@ export class PostgresService {
     private electronService: ElectronService,
     private ngZone: NgZone
   ) {
-    this._postgresDir = electronService.path.resolve(
-      electronService.remote.app.getAppPath(),
-      AppConfig.environment === 'PROD' ? '../pg12/bin' : './resources/pg12/bin'
-    );
     this._status().finally(async () => {
       const running = this._runningSubject.value;
       const initialized = this._initializedSubject.value;
@@ -56,6 +51,9 @@ export class PostgresService {
       this.running$.subscribe(async (running) => {
         if (running) {
           await this._checkMigrations();
+        } else {
+          await this.startDb();
+          await this._checkMigrations();
         }
       });
     });
@@ -65,7 +63,7 @@ export class PostgresService {
     return new Promise((resolve, reject) => {
       let stdout = '';
       let stderr = '';
-      const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['--version'], {cwd: this._postgresDir});
+      const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['--version'], {cwd: process.env.PG_EXECS_DIR});
       child.stdout.on('data', (data: string) => stdout += `${data}`);
       child.stderr.on('data', (data: string) => stderr += `${data}`);
       child.on('error', error => {
@@ -92,7 +90,7 @@ export class PostgresService {
       }
 
       console.log('Initializing DB...');
-      const child = this.electronService.childProcess.spawn(this._resolve('initdb'), initOptions, {cwd: this._postgresDir});
+      const child = this.electronService.childProcess.spawn(this._resolve('initdb'), initOptions, {cwd: process.env.PG_EXECS_DIR});
 
       child.stdout.on('data', (data: string) => this.ngZone.run(() => {
         data = data.toString().trim();
@@ -121,7 +119,7 @@ export class PostgresService {
   private _createDb(): Promise<void> {
     return new Promise((resolve, reject) => {
       console.log('Creating DB...');
-      const child = this.electronService.childProcess.spawn(this._resolve('createdb'), {cwd: this._postgresDir});
+      const child = this.electronService.childProcess.spawn(this._resolve('createdb'), {cwd: process.env.PG_EXECS_DIR});
 
       child.stdout.on('data', (data: string) => this.ngZone.run(() => {
         data = data.toString().trim();
@@ -146,7 +144,7 @@ export class PostgresService {
   private _psql(query: string): Promise<void> {
     return new Promise((resolve, reject) => {
       console.log('psql', query);
-      const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['-c', query], {cwd: this._postgresDir});
+      const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['-c', query], {cwd: process.env.PG_EXECS_DIR});
 
       child.stdout.on('data', (data: string) => this.ngZone.run(() => {
         data = data.toString().trim();
@@ -172,7 +170,7 @@ export class PostgresService {
   returnPsql(query: string): Promise<string> {
     return new Promise((resolve, reject) => {
       console.log('psql', query);
-      const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['-c', query], {cwd: this._postgresDir});
+      const child = this.electronService.childProcess.spawn(this._resolve('psql'), ['-c', query], {cwd: process.env.PG_EXECS_DIR});
 
       child.stdout.on('data', (data: string) => this.ngZone.run(() => {
         data = data.toString().trim();
@@ -200,7 +198,7 @@ export class PostgresService {
   startDb(): Promise<void> {
     return new Promise((resolve, reject) => {
       console.log('Starting DB...');
-      const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['start', '--wait'], {cwd: this._postgresDir});
+      const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['start', '--wait'], {cwd: process.env.PG_EXECS_DIR});
 
       child.stdout.on('data', (data: string) => this.ngZone.run(() => {
         data = data.toString().trim();
@@ -237,34 +235,10 @@ export class PostgresService {
     })
   }
 
-  stopDb(): void {
-    console.log('Stopping DB...');
-    const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['stop', '--wait'], {cwd: this._postgresDir});
-
-    child.stdout.on('data', (data: string) => this.ngZone.run(() => {
-      data = data.toString().trim();
-      console.log(`stopDb stdout: '${data}'`);
-      if (data.endsWith('server stopped')) {
-        this._runningSubject.next(false);
-      }
-      this._kill(child.pid);
-    }));
-    child.stderr.on('data', (data: string) => {
-      data = data.toString().trim();
-      console.error(`stopDb stderr: '${data}'`);
-      if (data.endsWith('Is server running?')) {
-        this._runningSubject.next(false);
-      }
-    });
-    child.on('close', (code) => {
-      console.log(`stopDb exited with code ${code}`);
-    });
-  }
-
   // Resolve with boolean if running/not-running, reject with exit code if failure
   private _status(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['status'], {cwd: this._postgresDir});
+      const child = this.electronService.childProcess.spawn(this._resolve('pg_ctl'), ['status'], {cwd: process.env.PG_EXECS_DIR});
       child.stdout.on('data', (data: string) => this.ngZone.run(() => {
         data = data.toString().trim();
         console.log(`status stdout: '${data}'`);
@@ -300,7 +274,7 @@ export class PostgresService {
   }
 
   private _resolve(executable: string): string {
-    return this.electronService.path.resolve(this._postgresDir, executable);
+    return this.electronService.path.resolve(process.env.PG_EXECS_DIR, executable);
   }
 
   // Manually kill Windows processes

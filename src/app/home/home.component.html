@@ -1,21 +1,17 @@
-<div class="container" *ngIf="{initialized: (postgresService.initialized$ | async) || false, running: (postgresService.running$ | async) || false, pending: (postgresService.pending$ | async) || false} as status">
-  <h1 class="title">Environment: {{ env }}</h1>
-  <h1 class="title">PSQL Version: {{ postgresVersion }}</h1>
-  <h1 class="title">Running: {{ status.running }}</h1>
-
-  <div fxLayoutGap="16px">
-    <button mat-raised-button (click)="postgresService.initDb()" [disabled]="status.initialized || status.pending || status.running">
-      <mat-progress-spinner *ngIf="status.pending" class="spinner" diameter="20" mode="indeterminate" style="display: inline-flex"></mat-progress-spinner>
-      <span>Init DB</span>
-    </button>
-    <button mat-raised-button (click)="postgresService.startDb()" [disabled]="!status.initialized || status.pending || status.running">Start DB</button>
-    <button mat-raised-button (click)="postgresService.stopDb(); clearQueryResult()" [disabled]="!status.initialized || status.pending || !status.running">Stop DB</button>
-    <button mat-raised-button (click)="returnPsql()" [disabled]="!status.initialized || status.pending || !status.running">Query PostGIS version</button>
-    <button mat-raised-button (click)="testButton()" [disabled]="!status.initialized || status.pending || !status.running">TestButton</button>
+<div class="container" *ngIf="{initialized: (postgresService.initialized$ | async) || false, running: (postgresService.running$ | async) || false, pending: (postgresService.pending$ | async) || false} as status" >
+  <div *ngIf="status.pending" class="spinner-container">
+    <div>Setting up Seedling...</div>
+    <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
   </div>
 
-  <textarea disabled>{{ latestQueryResult }}</textarea>
-  
-  <app-properties-upload></app-properties-upload>
-  <app-taxlots-upload></app-taxlots-upload>
+  <div [ngStyle]="{'opacity': status.pending ? '0.3' : '1'}">
+    <div>
+      <h1>Upload Data</h1>
+      <app-properties-upload></app-properties-upload>
+      <app-taxlots-upload></app-taxlots-upload>
+    </div>
+
+    <h4 class="title">PSQL Version: {{ postgresVersion }}</h4>
+    <h4 class="title">Database Running: {{ status.running }}</h4>
+  </div>
 </div>

@@ -3,9 +3,24 @@
   padding: 16px;
 }
 
-.spinner {
+.spinner-container {
+  width: max-content;
+  height: max-content;
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+
   display: inline-flex;
-  margin-right: 16px;
+  align-items: center;
+
+  div {
+    margin-right: 5px;
+  }
+
 }
 
 textarea {
