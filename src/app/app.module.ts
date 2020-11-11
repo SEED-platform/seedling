@@ -22,6 +22,7 @@ import { MapComponent } from './map/map.component';
 import { InventoryComponent } from './inventory/inventory.component';
 import { PropertiesUploadComponent } from './properties-upload/properties-upload.component';
 import { TaxlotsUploadComponent } from './taxlots-upload/taxlots-upload.component';
+import { DataExportComponent } from './data-export/data-export.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -37,7 +38,8 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     MapComponent,
     InventoryComponent,
     PropertiesUploadComponent,
-    TaxlotsUploadComponent
+    TaxlotsUploadComponent,
+    DataExportComponent
   ],
   imports: [
     AppRoutingModule,

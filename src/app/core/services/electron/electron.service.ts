@@ -25,6 +25,7 @@ export class ElectronService {
   pg: typeof pg;
   pgHstore: typeof pgHstore;
   DataTypes: typeof Sequelize.DataTypes;
+  QueryTypes: typeof Sequelize.QueryTypes;
   Sequelize: typeof Sequelize.Sequelize;
   Umzug: typeof Umzug;
   SequelizeStorage: typeof SequelizeStorage;
@@ -48,6 +49,7 @@ export class ElectronService {
       this.pg = this.remote.require('pg');
       this.pgHstore = this.remote.require('pg-hstore');
       this.DataTypes = this.remote.require('sequelize').DataTypes;
+      this.QueryTypes = this.remote.require('sequelize').QueryTypes;
       this.Sequelize = this.remote.require('sequelize').Sequelize;
       this.Umzug = this.remote.require('umzug').Umzug;
       this.SequelizeStorage = this.remote.require('umzug').SequelizeStorage;
